@@ -15,11 +15,8 @@
 
  let speechOutput;
  let reprompt;
- const welcomeOutput = "Welcome to my Narmi. What would you like to do";
+ const welcomeOutput = "Welcome to Narmi. What would you like to do";
  const welcomeReprompt = "What would you like to do with your account?";
- const tripIntro = [
-   "Got it. Let me check the account."
- ];
 
 
 
