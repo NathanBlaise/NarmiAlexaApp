@@ -45,16 +45,19 @@ const handlers = {
       this.emit(':responseReady');
     },
     'getBalanceIntent': function () {
-        getBalance( (balance) => {
-            var filledSlots = delegateSlotCollection.call(this);
-            var ACCOUNT_TYPE=this.event.request.intent.slots.accountType.value;
+        var filledSlots = delegateSlotCollection.call(this);
+        var ACCOUNT_TYPE=this.event.request.intent.slots.accountType.value;
+        ACCOUNT_TYPE = ACCOUNT_TYPE.toString();
+        getBalance( ACCOUNT_TYPE, (balance) => {
+        
             balance = balance.toString();
             var balanceDollars = balance.slice(0,-2);
             var balancePence = balance.slice(-2);
-            this.response.speak("You have " + balanceDollars + " dollars and "+ balancePence +" cents in your " + ACCOUNT_TYPE);
-            this.emit(':responseReady');
+            this.emit(":tell","You have " + balanceDollars + " dollars and "+ balancePence +" cents in your " + ACCOUNT_TYPE);
+            //this.emit(':responseReady');
         });
     },
+
     
     'getTransactionHistoryIntent': function () {
         getTransaction( (transactionName,amount) => {
@@ -113,11 +116,26 @@ exports.handler = (event, context) => {
 //    END of Intent Handlers {} ========================================================================================
 // 3. Helper Function  =================================================================================================
 
-function getBalance(callback){
-    banking_client.accounts.listAccountBalances().end(function(err, result) { 
-        var balance = result.body.account_balances[0].available;
-        callback(balance);
-    });
+    function getBalance(ACCOUNT_TYPE, callback){
+
+    banking_client.accounts.list().end(function(err, result) { 
+        //console.log(result.body.accounts);
+
+         for (var i = 0; i < result.body.accounts.length; i++){
+
+
+                
+             if (result.body.accounts[i].name.toLowerCase().includes(ACCOUNT_TYPE.toLowerCase())){
+             // console.log(i);
+               var temp = i;
+               banking_client.accounts.listAccountBalances().end(function(err, result) { 
+               var balance = result.body.account_balances[temp].available;
+               //console.log(balance)
+               callback(balance);
+               });
+           }
+          }
+  });
 }
 
 function getTransaction(callback){
